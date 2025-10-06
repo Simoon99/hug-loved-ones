@@ -46,8 +46,10 @@ supabase link --project-ref hujcbnrixdcxspmczbxi
 ### 4. Set the GEMINI_API_KEY Secret
 
 ```bash
-supabase secrets set GEMINI_API_KEY=AIzaSyAr2jNFPdTfLXsqetYf_Na8JR1AbInKssg
+supabase secrets set GEMINI_API_KEY=YOUR_GEMINI_API_KEY_HERE
 ```
+
+Replace `YOUR_GEMINI_API_KEY_HERE` with your actual Gemini API key from Google Cloud Console.
 
 ### 5. Deploy the Edge Function
 

@@ -44,8 +44,10 @@ To achieve **maximum security**, you can deploy the Gemini API key as a Supabase
 
 2. **Set the Gemini API Key as a Supabase Secret**:
    ```bash
-   supabase secrets set GEMINI_API_KEY=AIzaSyAr2jNFPdTfLXsqetYf_Na8JR1AbInKssg --project-ref hujcbnrixdcxspmczbxi
+   supabase secrets set GEMINI_API_KEY=YOUR_NEW_GEMINI_API_KEY --project-ref hujcbnrixdcxspmczbxi
    ```
+   
+   ⚠️ **Important**: Use your newly regenerated API key from Google Cloud Console.
 
 3. **Deploy the Edge Function**:
    ```bash
