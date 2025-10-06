@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    const { imageUrls, prompt } = await request.json()
+    const { imageUrls, prompt, aspectRatio = '1:1', stylePreset = 'photorealistic' } = await request.json()
 
     if (!imageUrls || !Array.isArray(imageUrls) || imageUrls.length === 0) {
       return NextResponse.json(
@@ -81,8 +81,29 @@ export async function POST(request: NextRequest) {
     console.log('✅ All images converted to base64')
     console.log('📤 Sending request to Gemini API...')
 
-    // Create prompt for Gemini
-    const geminiPrompt = prompt || 'Create a heartfelt, photorealistic image of these two people warmly embracing each other in a tender hug, showing genuine affection and connection. Natural lighting, emotional scene.'
+    // Create detailed prompt for Gemini with emphasis on preserving faces
+    const basePrompt = prompt || 'Create a warm, heartfelt image of the people in the photos hugging each other'
+    
+    // Enhanced prompt with critical instructions to preserve faces
+    const geminiPrompt = `${basePrompt}. 
+
+CRITICAL INSTRUCTIONS:
+- Take a picture with a Polaroid camera aesthetic
+- The photo should look natural and genuine, like a real photograph
+- Use consistent lighting with a soft flash effect
+- Replace the background with a soft white curtain or neutral backdrop
+- The people should be warmly hugging and smiling with genuine emotion
+- DO NOT change, edit, or modify the faces of the people in any way - keep them exactly as they appear in the input photos
+- DO NOT alter facial features, skin tone, or any facial characteristics
+- Preserve the original faces with absolute fidelity
+- Keep the clothing from the input photos as close as possible to the originals
+- Focus on creating a natural, photorealistic composition while maintaining the exact faces from the input images
+- The hug should feel authentic and heartwarming
+- Lighting should be natural with a warm, inviting atmosphere
+
+Style: ${stylePreset === 'polaroid' ? 'Vintage Polaroid instant photo with authentic retro aesthetics' : stylePreset === 'professional' ? 'Professional photography with studio lighting' : 'Natural, photorealistic with genuine emotions and soft lighting'}
+
+Remember: The most important requirement is to keep the faces EXACTLY as they appear in the input photos without ANY modifications.`
 
     // Use official Gemini API endpoint with x-goog-api-key header (recommended authentication method)
     // Reference: https://ai.google.dev/gemini-api/docs/image-generation
@@ -115,7 +136,7 @@ export async function POST(request: NextRequest) {
           generationConfig: {
             responseModalities: ['Image'],
             imageConfig: {
-              aspectRatio: '1:1', // Square images
+              aspectRatio: aspectRatio, // User-selected aspect ratio
             },
           },
         }),

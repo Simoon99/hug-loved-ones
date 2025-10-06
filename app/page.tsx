@@ -34,18 +34,27 @@ export default function Home() {
   const [imageRecordId, setImageRecordId] = useState<string | null>(null)
   const [showPricingModal, setShowPricingModal] = useState(false)
   const [selectedTier, setSelectedTier] = useState<'1photo' | '3photos' | '5photos' | null>(null)
+  
+  // Generation parameters
+  const [aspectRatio, setAspectRatio] = useState<'1:1' | '16:9' | '9:16' | '4:3'>('1:1')
+  const [stylePreset, setStylePreset] = useState<'photorealistic' | 'polaroid' | 'professional'>('photorealistic')
 
   const image1InputRef = useRef<HTMLInputElement>(null)
   const image2InputRef = useRef<HTMLInputElement>(null)
   const image3InputRef = useRef<HTMLInputElement>(null)
 
   const promptTemplates = [
-    "Two close friends reuniting after a long time apart, sharing a warm and emotional embrace in a beautiful outdoor setting with natural lighting",
-    "A heartfelt moment as two loved ones hug each other tightly, surrounded by a soft, dreamy atmosphere with bokeh effects and golden hour lighting",
-    "Two people coming together in a tender, meaningful hug, with genuine emotion and connection visible in their body language, cinematic style",
-    "An emotional reunion scene where two individuals embrace warmly, tears of joy, heartwarming moment, professional photography style",
-    "Two friends sharing a genuine, wholesome hug filled with love and appreciation, soft natural light, candid photography aesthetic",
-    "A touching embrace between two people in an elegant setting, showing deep connection and affection, artistic cinematography",
+    "Create a photorealistic Polaroid-style photograph of these people warmly embracing in a heartfelt hug. Use soft, natural lighting with a gentle flash effect. The background should be a clean white curtain. They're both smiling genuinely, showing true emotion and connection. Keep their faces EXACTLY as they appear in the photos - do not modify or change any facial features whatsoever. Preserve their clothing styles from the original images. The composition should feel authentic and spontaneous, like a cherished memory captured in time. Warm, inviting atmosphere with natural skin tones and realistic textures.",
+    
+    "Generate a professional portrait-style image of these individuals in a tender, emotional embrace. Soft studio lighting with a subtle backdrop. Both people are smiling with genuine joy and affection. CRITICAL: Maintain the exact facial features, skin tones, and characteristics from the input photos - no modifications to faces allowed. Keep their original clothing as close as possible. The scene should radiate warmth and connection, with perfect focus on their expressions. Professional photography quality with natural colors and realistic depth of field.",
+    
+    "Create a candid, snapshot-style photograph capturing these people in a warm, spontaneous hug. Natural daylight filtering through, creating a soft glow. Background: simple white curtain or neutral wall. They're both laughing and smiling genuinely. ESSENTIAL: Do not alter, edit, or change their faces in any way - preserve exact facial features, expressions, and characteristics from the original photos. Maintain their clothing styles. The image should feel like a genuine moment of connection, unposed and heartfelt. Warm tones, realistic lighting, authentic emotions.",
+    
+    "Generate a heartwarming image with a vintage instant camera aesthetic. These people are sharing a loving embrace with genuine smiles. Soft, even lighting with a classic flash effect. Clean white curtain backdrop. MANDATORY: Keep all facial features, skin tones, and characteristics identical to the input images - absolutely no facial modifications. Preserve original clothing. The composition should evoke nostalgia and warmth, like a treasured family photo. Natural expressions, warm color palette, slightly vintage feel while maintaining photorealistic quality.",
+    
+    "Create a touching reunion-style photograph of these individuals hugging with pure joy. Soft natural light with a warm glow. Simple, clean backdrop (white curtain or neutral setting). Both people displaying authentic happiness and emotional connection. CRITICAL REQUIREMENT: Maintain EXACT facial features from the input photos - no changes, edits, or modifications to faces whatsoever. Keep clothing similar to originals. The scene should capture a genuine moment of love and connection. Professional quality with natural skin tones, realistic textures, and warm, inviting atmosphere.",
+    
+    "Generate a beautiful, emotive photograph in the style of authentic instant photography. These people are tenderly hugging with heartfelt smiles. Consistent soft lighting with a natural flash effect. Background: clean white curtain. ABSOLUTE PRIORITY: Do not modify, alter, or change any facial features - keep faces exactly as shown in input photos. Preserve clothing styles from originals. The image should feel spontaneous yet composed, with genuine emotional resonance. Photorealistic quality with warm tones, natural depth, and authentic human connection.",
   ]
 
   const handleFileSelect = async (
@@ -189,6 +198,8 @@ export default function Home() {
         body: JSON.stringify({
           imageUrls,
           prompt: customPrompt || undefined,
+          aspectRatio,
+          stylePreset,
         }),
       })
 
@@ -573,6 +584,77 @@ export default function Home() {
                   if (file) handleFileSelect(file, 'image3')
                 }}
               />
+            </div>
+          </div>
+
+          {/* Generation Parameters */}
+          <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4 md:p-6">
+            <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <span>⚙️</span>
+              <span>Generation Settings</span>
+            </h3>
+            
+            {/* Aspect Ratio Selection */}
+            <div className="mb-4">
+              <label className="block text-gray-700 font-semibold text-sm md:text-base mb-3">
+                Aspect Ratio
+              </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
+                {[
+                  { value: '1:1', label: 'Square (1:1)', icon: '⬜', desc: 'Perfect for Instagram' },
+                  { value: '16:9', label: 'Landscape (16:9)', icon: '🖼️', desc: 'Widescreen' },
+                  { value: '9:16', label: 'Portrait (9:16)', icon: '📱', desc: 'Stories/Reels' },
+                  { value: '4:3', label: 'Classic (4:3)', icon: '🎞️', desc: 'Traditional' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setAspectRatio(option.value as any)}
+                    disabled={isGenerating}
+                    className={`flex flex-col items-center gap-1 p-3 md:p-4 rounded-lg border-2 transition-all active:scale-95 touch-manipulation ${
+                      aspectRatio === option.value
+                        ? 'bg-white border-purple-600 shadow-lg ring-2 ring-purple-400'
+                        : 'bg-white/50 border-gray-200 hover:border-purple-300 hover:shadow-md'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <span className="text-2xl">{option.icon}</span>
+                    <span className="text-xs md:text-sm font-semibold text-gray-800 text-center">
+                      {option.label}
+                    </span>
+                    <span className="text-[10px] text-gray-500">{option.desc}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Style Preset Selection */}
+            <div>
+              <label className="block text-gray-700 font-semibold text-sm md:text-base mb-3">
+                Photo Style
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+                {[
+                  { value: 'photorealistic', label: 'Photorealistic', icon: '📸', desc: 'Natural & realistic' },
+                  { value: 'polaroid', label: 'Polaroid Vintage', icon: '📷', desc: 'Retro instant photo' },
+                  { value: 'professional', label: 'Studio Portrait', icon: '🎨', desc: 'Professional quality' },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => setStylePreset(option.value as any)}
+                    disabled={isGenerating}
+                    className={`flex flex-col items-center gap-1 p-3 md:p-4 rounded-lg border-2 transition-all active:scale-95 touch-manipulation ${
+                      stylePreset === option.value
+                        ? 'bg-white border-purple-600 shadow-lg ring-2 ring-purple-400'
+                        : 'bg-white/50 border-gray-200 hover:border-purple-300 hover:shadow-md'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                  >
+                    <span className="text-2xl">{option.icon}</span>
+                    <span className="text-xs md:text-sm font-semibold text-gray-800 text-center">
+                      {option.label}
+                    </span>
+                    <span className="text-[10px] text-gray-500 text-center">{option.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
