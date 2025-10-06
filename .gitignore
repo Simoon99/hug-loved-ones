@@ -32,6 +32,9 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# Supabase Edge Functions (deployed separately to Supabase)
+supabase/
+
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
